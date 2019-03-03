@@ -216,29 +216,54 @@ case $OPTION in
 			fi
 
 			if ! echo "server {
-					listen 80;
-					root $rootPath;
-					index index.php index.html index.htm index.nginx-debian.html;
-					server_name $domain;
-					location = /favicon.ico { log_not_found off; access_log off; }
-					location = /robots.txt { log_not_found off; access_log off; }
-					location ~* \.(jpg|jpeg|gif|css|png|js|ico|xml)$ {
-						access_log off;
-						log_not_found off;
-					}
+				server_name $rootPath;
+				root $rootPath;
 
-					location / {
-						try_files $uri $uri/ =404;
-					}
+				#add_header X-Frame-Options "SAMEORIGIN";
+				#add_header X-XSS-Protection "1; mode=block";
+				#add_header X-Content-Type-Options "nosniff";
 
-					location ~ \.php$ {
-						include snippets/fastcgi-php.conf;
-						fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
-					}
+				index index.php index.html index.htm;
 
-					location ~ /\.ht {
+				charset utf-8;
+
+				location / {
+						try_files $uri $uri/ /index.php$is_args$args;
+				}
+
+				location = /favicon.ico { access_log off; log_not_found off; }
+				location = /robots.txt  { access_log off; log_not_found off; }
+
+				error_page 404 /index.php;
+
+				location ~ \.php$ {
+						#inclue snippets/fastcgi-php.conf;
+						fastcgi_split_path_info ^(.+\.php)(/.+)$;
+						fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+						fastcgi_index index.php;
+						include fastcgi_params;
+						fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+				}
+
+				location ~ /\.(?!well-known).* {
 						deny all;
-					}
+				}
+
+				listen 443 ssl; # managed by Certbot
+				ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem; # managed by Certbot
+				ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem; # managed by Certbot
+				include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+				ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+				}
+
+				server {
+					if ($host = $domain) {
+							return 301 https://$host$request_uri;
+					} # managed by Certbot
+
+					listen 80;
+					server_name $domain;
+					return 404; # managed by Certbot
 				}" > $sitesAvailable$configName
 			then
 				echo "There is an ERROR create $configName file"
