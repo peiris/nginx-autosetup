@@ -16,6 +16,7 @@ echo ""
 echo "What do you want to do?"
 echo "   1) Install or update Nginx"
 echo "   2) Setup VHOSTS"
+echo "   3) Setup SSL"
 echo "   4) Exit"
 echo ""
 
@@ -89,7 +90,7 @@ case $OPTION in
 		done
 
 		if [ -e $sitesAvailable$domain ]; then
-			echo "This domain already exists.\nPlease Try Another one"
+			echo "This domain already exists. Please Try Another one"
 			exit;
 		fi
 
@@ -165,6 +166,14 @@ case $OPTION in
 
 		echo "Complete! You now have a new Virtual Host Your new host is: http://$domain And its located at $rootPath"
 		exit;
+	;;
+	3) # setup ssl
+	 apt-get install certbot python-certbot-nginx -t stretch-backports
+	 certbot --nginx
+
+	 # We're done !
+	 echo "Installation done."
+	exit
 	;;
 
 esac
