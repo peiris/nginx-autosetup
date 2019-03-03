@@ -101,12 +101,12 @@ case $OPTION in
 		if ! [ -d $rootPath ]; then
 			mkdir $rootPath
 			chmod 777 $rootPath
-			if ! echo "Hello, world!" > $rootPath/index.php
+			if ! echo "Hello, world!" > $rootPath/index.html
 			then
-				echo "ERROR: Not able to write in file $rootPath/index.php. Please check permissions."
+				echo "ERROR: Not able to write in file $rootPath/index.html. Please check permissions."
 				exit;
 			else
-				echo "Added content to $rootPath/index.php"
+				echo "Added content to $rootPath/index.html"
 			fi
 		fi
 
