@@ -73,7 +73,8 @@ case $OPTION in
 		echo "What is the domain name?"
 		echo ""
 		while [[ $NEW_VHOST_NAME !=  "y" && $NEW_VHOST_NAME != "n" ]]; do
-			read -p "Please enter domain name" -e NEW_VHOST_NAME
+			read -p "Please enter domain name :" -e NEW_VHOST_NAME
+			echo "Nice to meet you $NEW_VHOST_NAME"
 		done
 	;;
 
