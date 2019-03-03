@@ -168,7 +168,7 @@ case $OPTION in
 		exit;
 	;;
 	3) # setup ssl
-	 apt-get install certbot python-certbot-nginx -t stretch-backports
+	 apt-get install certbot python-certbot-nginx
 	 certbot --nginx
 
 	 # We're done !
