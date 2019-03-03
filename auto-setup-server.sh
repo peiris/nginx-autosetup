@@ -168,9 +168,13 @@ case $OPTION in
 		exit;
 	;;
 	3) # setup ssl
-	 wget https://dl.eff.org/certbot-auto
-	 chmod a+x ./certbot-auto
-	 ./certbot-auto
+		cd /
+		if [ ! -f ./certbot-auto ]; then
+			wget https://dl.eff.org/certbot-auto
+		fi
+
+	 	chmod a+x ./certbot-auto
+	 	./certbot-auto
 
 	 # We're done !
 	 echo "Installation done."
