@@ -212,29 +212,29 @@ case $OPTION in
 			configName=$domain
 
 			if ! echo "server {
-				listen 80 default_server;
-				root $rootPath;
-				index index.php index.html index.htm index.nginx-debian.html;
-				server_name $domain;
-				location = /favicon.ico { log_not_found off; access_log off; }
-				location = /robots.txt { log_not_found off; access_log off; }
-				location ~* \.(jpg|jpeg|gif|css|png|js|ico|xml)$ {
-					access_log off;
-					log_not_found off;
-				}
+					listen 80;
+					root $rootPath;
+					index index.php index.html index.htm index.nginx-debian.html;
+					server_name $domain;
+					location = /favicon.ico { log_not_found off; access_log off; }
+					location = /robots.txt { log_not_found off; access_log off; }
+					location ~* \.(jpg|jpeg|gif|css|png|js|ico|xml)$ {
+						access_log off;
+						log_not_found off;
+					}
 
-				location / {
-					try_files $uri $uri/ =404;
-				}
+					location / {
+						try_files $uri $uri/ =404;
+					}
 
-				location ~ \.php$ {
-					include snippets/fastcgi-php.conf;
-					fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
-				}
+					location ~ \.php$ {
+						include snippets/fastcgi-php.conf;
+						fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+					}
 
-				location ~ /\.ht {
-					deny all;
-				}
+					location ~ /\.ht {
+						deny all;
+					}
 				}" > $sitesAvailable$configName
 			then
 				echo "There is an ERROR create $configName file"
@@ -246,6 +246,7 @@ case $OPTION in
 			ln -s $sitesAvailable$configName $sitesEnable$configName
 
 			service nginx restart
+			systemctl reload nginx.service
 			systemctl reload php7.0-fpm.service
 
 			if [ "$rootPath" = "" ]; then
