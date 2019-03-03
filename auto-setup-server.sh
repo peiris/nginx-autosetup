@@ -73,7 +73,7 @@ case $OPTION in
 		rootPath=$2
 		sitesEnable='/etc/nginx/sites-enabled/'
 		sitesAvailable='/etc/nginx/sites-available/'
-		serverRoot='/srv/'
+		serverRoot='/var/www/'
 		domainRegex="^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$"
 
 		while [ "$domain" = "" ]
@@ -163,7 +163,7 @@ case $OPTION in
 
 		service nginx restart
 
-		echo "Complete! \nYou now have a new Virtual Host \nYour new host is: http://$domain \nAnd its located at $rootPath"
+		echo "Complete! You now have a new Virtual Host Your new host is: http://$domain And its located at $rootPath"
 		exit;
 	;;
 
