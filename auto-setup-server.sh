@@ -168,8 +168,9 @@ case $OPTION in
 		exit;
 	;;
 	3) # setup ssl
-	 apt-get install certbot python-certbot-nginx
-	 certbot --nginx
+	 wget https://dl.eff.org/certbot-auto
+	 chmod a+x ./certbot-auto
+	 ./certbot-auto
 
 	 # We're done !
 	 echo "Installation done."
