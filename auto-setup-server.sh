@@ -211,6 +211,10 @@ case $OPTION in
 
 			configName=$domain
 
+			if [ "$rootPath" = "" ]; then
+				rootPath=$serverRoot$domain
+			fi
+
 			if ! echo "server {
 					listen 80;
 					root $rootPath;
@@ -248,10 +252,6 @@ case $OPTION in
 			service nginx restart
 			systemctl reload nginx.service
 			systemctl reload php7.0-fpm.service
-
-			if [ "$rootPath" = "" ]; then
-				rootPath=$serverRoot$domain
-			fi
 
 			if ! [ -d $rootPath ]; then
 				mkdir $rootPath
