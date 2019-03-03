@@ -17,7 +17,8 @@ echo "What do you want to do?"
 echo "   1) Install or update Nginx"
 echo "   2) Setup VHOSTS"
 echo "   3) Setup SSL"
-echo "   4) Exit"
+echo "   4) Install PHP"
+echo "   5) Exit"
 echo ""
 
 while [[ $OPTION !=  "1" && $OPTION != "2" && $OPTION != "3" && $OPTION != "4" ]]; do
@@ -72,6 +73,7 @@ case $OPTION in
 	2) # Setup VHOSTS
 		domain=$1
 		rootPath=$2
+		phpSupport=$3
 		sitesEnable='/etc/nginx/sites-enabled/'
 		sitesAvailable='/etc/nginx/sites-available/'
 		serverRoot='/var/www/'
@@ -93,7 +95,6 @@ case $OPTION in
 			echo "This domain already exists. Please Try Another one"
 			exit;
 		fi
-
 
 		if [ "$rootPath" = "" ]; then
 			rootPath=$serverRoot$domain
@@ -175,6 +176,94 @@ case $OPTION in
 
 	 	chmod a+x ./certbot-auto
 	 	./certbot-auto
+
+	 # We're done !
+	 echo "Installation done."
+	exit
+	;;
+	4) # Install PHP
+		domain=$1
+		rootPath=$2
+		phpSupport=$3
+		sitesEnable='/etc/nginx/sites-enabled/'
+		sitesAvailable='/etc/nginx/sites-available/'
+		serverRoot='/var/www/'
+		domainRegex="^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$"
+
+		while [ "$domain" = "" ]
+		do
+			echo "Please provide domain:"
+			read domain
+		done
+
+		until [[ $domain =~ $domainRegex ]]
+		do
+			echo "Enter valid domain:"
+			read domain
+		done
+
+		if [ -e $sitesAvailable$domain ]; then
+			apt-get update
+			apt-get upgrade -y
+			apt-get -y install php7.0-fpm
+			rm /etc/nginx/sites-enabled/$domain
+			rm /etc/nginx/sites-available/$domain
+
+			configName=$domain
+
+			if ! echo "server {
+				listen 80 default_server;
+				root $rootPath;
+				index index.php index.html index.htm index.nginx-debian.html;
+				server_name $domain;
+				location = /favicon.ico { log_not_found off; access_log off; }
+				location = /robots.txt { log_not_found off; access_log off; }
+				location ~* \.(jpg|jpeg|gif|css|png|js|ico|xml)$ {
+					access_log off;
+					log_not_found off;
+				}
+
+				location / {
+					try_files $uri $uri/ =404;
+				}
+
+				location ~ \.php$ {
+					include snippets/fastcgi-php.conf;
+					fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+				}
+
+				location ~ /\.ht {
+					deny all;
+				}
+				}" > $sitesAvailable$configName
+			then
+				echo "There is an ERROR create $configName file"
+				exit;
+			else
+				echo "New PHP Virtual Host Created"
+			fi
+
+			ln -s $sitesAvailable$configName $sitesEnable$configName
+
+			service nginx restart
+			systemctl reload php7.0-fpm.service
+
+			if [ "$rootPath" = "" ]; then
+				rootPath=$serverRoot$domain
+			fi
+
+			if ! [ -d $rootPath ]; then
+				mkdir $rootPath
+				chmod 777 $rootPath
+				if ! echo "Hello, world!" > $rootPath/index.php
+				then
+					echo "ERROR: Not able to write in file $rootPath/index.php. Please check permissions."
+					exit;
+				else
+					echo "Added content to $rootPath/index.php"
+				fi
+			fi
+		fi
 
 	 # We're done !
 	 echo "Installation done."
