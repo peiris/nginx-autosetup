@@ -203,11 +203,17 @@ case $OPTION in
 		done
 
 		if [ -e $sitesAvailable$domain ]; then
+			rm /etc/nginx/sites-available/$domain
+		fi
+
+		if [ -e $sitesEnable$domain ]; then
+			rm /etc/nginx/sites-enabled/$domain
+		fi
+
+		if [ -e $sitesAvailable$domain ]; then
 			apt-get update
 			apt-get upgrade -y
 			apt-get -y install php7.0-fpm
-			rm /etc/nginx/sites-enabled/$domain
-			rm /etc/nginx/sites-available/$domain
 
 			configName=$domain
 
@@ -274,7 +280,6 @@ case $OPTION in
 
 			ln -s $sitesAvailable$configName $sitesEnable$configName
 
-			service nginx restart
 			systemctl reload nginx.service
 			systemctl reload php7.0-fpm.service
 
